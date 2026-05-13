@@ -25,7 +25,7 @@ jobs:
 
       - name: Validate model
         run: |
-          MODEL_ID="${{ needs.call-train.outputs.model_id }}"
+          MODEL_ID="${{github.event.workflow_run.outputs.model_id }}"
           echo "Using model_id: $MODEL_ID"
 
           uv sync --group dev
