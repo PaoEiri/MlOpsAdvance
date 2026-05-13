@@ -56,4 +56,15 @@ jobs:
           if acc < 0.80 or prec < 0.80 or rec < 0.80:
               print("❌ Model quality too low. Failing pipeline.")
               sys.exit(1)
+          else:
+              print("✅ Model quality acceptable. Passing pipeline.")
           EOF
+
+      - name: Save metrics as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-metrics
+          path: |
+            validate_output.txt
+          retention-days: 1
