@@ -18,7 +18,6 @@ def generate_report(accuracy, precision, recall, timestamp, output_path):
         // Inyectar datos en el HTML
         fillMetrics({accuracy}, {precision}, {recall}, '{timestamp}');
     """
-    
     # Insertar el script antes del cierre del body
     html_content = html_content.replace(
         "document.addEventListener('DOMContentLoaded', function() {\n            // Los valores se inyectarán aquí con un script inline\n        });",
