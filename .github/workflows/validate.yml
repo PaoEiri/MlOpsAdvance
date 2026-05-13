@@ -23,16 +23,22 @@ jobs:
           python-version: "3.14"
           version: "latest"
 
+      - name: Download model_id artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: model-metadata
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
       - name: Validate model
         run: |
-          MODEL_ID="${{ github.event.workflow_run.outputs.model_id }}"
+          MODEL_ID=$(cat model_id.txt | tr -d ' \n')
           echo "Using model_id: $MODEL_ID"
 
           uv sync --group dev
           uv pip install -e .
           uv run -m revolutionary_mlops validate "$MODEL_ID" --validate-path data/validate.csv > validate_output.txt
 
- 
       - name: Extract metrics
         id: metrics
         run: |
@@ -48,6 +54,6 @@ jobs:
           import sys
           acc=float("$ACC"); prec=float("$PREC"); rec=float("$REC")
           if acc < 0.80 or prec < 0.80 or rec < 0.80:
-          print("❌ Model quality too low. Failing pipeline.")
-          sys.exit(1)
+              print("❌ Model quality too low. Failing pipeline.")
+              sys.exit(1)
           EOF

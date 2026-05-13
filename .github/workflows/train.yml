@@ -10,9 +10,6 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
-    outputs:
-      model_id: ${{ steps.extract.outputs.model_id }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -27,9 +24,19 @@ jobs:
           uv pip install -e .
           uv run -m revolutionary_mlops train --train-path data/train.csv --test-path data/test.csv > train_output.txt
 
-      - name: Extract model_id
+      - name: Extract and save model_id
         id: extract
         run: |
           MODEL_ID=$(awk -F'=' '/^model_id=/ {print $2}' train_output.txt | tr -d '\r')
-          echo "model_id=$MODEL_ID" >> $GITHUB_OUTPUT
+          echo "model_id=$MODEL_ID"
+          # Guardar en un archivo
+          mkdir -p model_metadata
+          echo "$MODEL_ID" > model_metadata/model_id.txt
           echo "Using model_id: $MODEL_ID"
+
+      - name: Upload model_id artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-metadata
+          path: model_metadata/model_id.txt
+          retention-days: 1
