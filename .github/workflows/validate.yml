@@ -1,0 +1,51 @@
+name: Validate Model
+
+on:
+  workflow_run:
+    workflows: ["Train Model"]
+    types: [completed]
+
+jobs:
+  validate:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    outputs:
+      accuracy: ${{ steps.val.outputs.accuracy }}
+      precision: ${{ steps.val.outputs.precision }}
+      recall: ${{ steps.val.outputs.recall }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.14"
+          version: "latest"
+
+      - name: Validate model
+        id: val
+        run: |
+          uv sync --group dev
+          uv pip install -e .
+
+          # Recuperar model_id del artefacto del workflow anterior
+          MODEL_ID=$(curl -sL ${{ github.event.workflow_run.artifacts_url }} | jq -r '.artifacts[0].name')
+
+          uv run -m revolutionary_mlops validate $MODEL_ID --validate-path data/validate.csv > validate.txt
+
+          ACC=$(grep "^accuracy=" validate.txt | cut -d'=' -f2)
+          PREC=$(grep "^precision=" validate.txt | cut -d'=' -f2)
+          REC=$(grep "^recall=" validate.txt | cut -d'=' -f2)
+
+          echo "accuracy=$ACC" >> $GITHUB_OUTPUT
+          echo "precision=$PREC" >> $GITHUB_OUTPUT
+          echo "recall=$REC" >> $GITHUB_OUTPUT
+
+          python3 - <<EOF
+          import sys
+          acc=float("$ACC"); prec=float("$PREC"); rec=float("$REC")
+          if acc < 0.80 or prec < 0.80 or rec < 0.80:
+          print("❌ Model quality too low. Failing pipeline.")
+          sys.exit(1)
+          EOF

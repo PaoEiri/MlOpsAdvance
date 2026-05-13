@@ -1,0 +1,31 @@
+name: Train Model
+
+on:
+  workflow_run:
+    workflows: ["Tests"]
+    types: [completed]
+
+jobs:
+  train:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    outputs:
+      model_id: ${{ steps.train.outputs.model_id }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.14"
+          version: "latest"
+
+      - name: Train model
+        id: train
+        run: |
+          uv sync --group dev
+          uv pip install -e .
+          uv run -m revolutionary_mlops train --train-path data/train.csv --test-path data/test.csv > train.txt
+          MODEL_ID=$(grep "^model_id=" train.txt | cut -d'=' -f2)
+          echo "model_id=$MODEL_ID" >> $GITHUB_OUTPUT

@@ -1,0 +1,38 @@
+name: Deploy Report
+
+on:
+  workflow_run:
+    workflows: ["Validate Model"]
+    types: [completed]
+
+permissions:
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate HTML
+        run: |
+          mkdir -p report
+          cat <<EOF > report/index.html
+          <html>
+          <body>
+            <h1>Latest Model Validation</h1>
+            <p>Accuracy: ${{ github.event.workflow_run.outputs.accuracy }}</p>
+            <p>Precision: ${{ github.event.workflow_run.outputs.precision }}</p>
+            <p>Recall: ${{ github.event.workflow_run.outputs.recall }}</p>
+          </body>
+          </html>
+          EOF
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: report
+
+      - uses: actions/deploy-pages@v4

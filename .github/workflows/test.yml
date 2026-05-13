@@ -1,0 +1,24 @@
+name: Tests
+
+on:
+  workflow_run:
+    workflows: ["Lint"]
+    types: [completed]
+
+jobs:
+  test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.14"
+          version: "latest"
+
+      - run: |
+          uv sync --group dev
+          uv pip install -e .
+          uv run pytest tests
