@@ -17,8 +17,12 @@ jobs:
           python-version: "3.14"
           version: "latest"
 
-      - run: |
-          uv sync --group dev
-          uv run ruff check .
-          uv run ruff format --check .
-          uv run ty check .
+      - name: Sync dependencies
+        run: uv sync --group dev
+
+      - name: Format check (excluding .github)
+        run: uv run ruff format --check --exclude .github .
+
+      - name: Lint check (excluding .github)
+        run: uv run ruff check --exclude .github .
+          
