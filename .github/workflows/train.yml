@@ -32,3 +32,4 @@ jobs:
         run: |
           MODEL_ID=$(awk -F'=' '/^model_id=/ {print $2}' train_output.txt | tr -d '\r')
           echo "model_id=$MODEL_ID" >> $GITHUB_OUTPUT
+          echo "Using model_id: $MODEL_ID"
