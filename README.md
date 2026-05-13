@@ -1,4 +1,4 @@
-# revolutionary-mlops
+git remote add origin https://github.com/PaoEiri/MlOpsAdvance.git# revolutionary-mlops
 
 A revolutionary ML project that trains a model guaranteed to return `TRUE` for any input. Powered by cutting-edge Gaussian statistics and the world's most optimistic threshold classifier.
 
