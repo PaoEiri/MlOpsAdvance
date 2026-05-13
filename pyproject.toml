@@ -5,8 +5,8 @@ description = "A revolutionary machine learning model to predict TRUE for any in
 requires-python = ">=3.12"
 dependencies = []
 
-[dependency-groups]
-dev = [
+[tool.uv]
+dev-dependencies = [
     "pytest>=9.0.3",
 ]
 
