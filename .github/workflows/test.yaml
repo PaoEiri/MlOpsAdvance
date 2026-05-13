@@ -13,7 +13,6 @@ on:
 jobs:
   test:
     name: Run pytest
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest] 
