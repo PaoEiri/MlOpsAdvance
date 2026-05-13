@@ -22,10 +22,6 @@ jobs:
         with:
           python-version: "3.14"
           version: "latest"
-      - name: Download model_id artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: model_id
 
       - name: Validate model
         run: |
