@@ -40,4 +40,4 @@ jobs:
           python -m pip install "pytest>=9.0.3"
 
       - name: Run unit tests
-        run: uv run -m pytest tests
+        run: uv run pytest tests
