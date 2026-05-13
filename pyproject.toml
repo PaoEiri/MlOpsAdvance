@@ -2,11 +2,11 @@
 name = "revolutionary-mlops"
 version = "0.1.0"
 description = "A revolutionary machine learning model to predict TRUE for any input. Let's build a "
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = []
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest>=9.0.3",
 ]
 
