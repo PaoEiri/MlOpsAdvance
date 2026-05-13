@@ -31,11 +31,4 @@ jobs:
         id: extract
         run: |
           MODEL_ID=$(awk -F'=' '/^model_id=/ {print $2}' train_output.txt | tr -d '\r')
-          echo "model_id=$MODEL_ID"
           echo "model_id=$MODEL_ID" >> $GITHUB_OUTPUT
-
-      - name: Upload model_id artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: model_id
-          path: train_output.txt
