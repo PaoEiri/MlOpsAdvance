@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      accuracy: ${{ steps.val.outputs.accuracy }}
-      precision: ${{ steps.val.outputs.precision }}
-      recall: ${{ steps.val.outputs.recall }}
+      accuracy: ${{ steps.metrics.outputs.accuracy }}
+      precision: ${{ steps.metrics.outputs.precision }}
+      recall: ${{ steps.metrics.outputs.recall }}
 
     steps:
       - uses: actions/checkout@v4
@@ -22,21 +22,29 @@ jobs:
         with:
           python-version: "3.14"
           version: "latest"
+      - name: Download model_id artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: model_id
 
+      - name: Extract model_id
+        id: extract
+        run: |
+          MODEL_ID=$(awk -F'=' '/^model_id=/ {print $2}' train_output.txt | tr -d '\r')
+          echo "model_id=$MODEL_ID"
+          echo "model_id=$MODEL_ID" >> $GITHUB_OUTPUT
       - name: Validate model
-        id: val
         run: |
           uv sync --group dev
           uv pip install -e .
+          uv run -m revolutionary_mlops validate ${{ steps.extract.outputs.model_id }} --validate-path data/validate.csv > validate_output.txt
 
-          # Recuperar model_id del artefacto del workflow anterior
-          MODEL_ID=$(curl -sL ${{ github.event.workflow_run.artifacts_url }} | jq -r '.artifacts[0].name')
-
-          uv run -m revolutionary_mlops validate $MODEL_ID --validate-path data/validate.csv > validate.txt
-
-          ACC=$(grep "^accuracy=" validate.txt | cut -d'=' -f2)
-          PREC=$(grep "^precision=" validate.txt | cut -d'=' -f2)
-          REC=$(grep "^recall=" validate.txt | cut -d'=' -f2)
+      - name: Extract metrics
+        id: metrics
+        run: |
+          ACC=$(awk -F'=' '/^accuracy=/ {print $2}' validate_output.txt | tr -d '\r')
+          PREC=$(awk -F'=' '/^precision=/ {print $2}' validate_output.txt | tr -d '\r')
+          REC=$(awk -F'=' '/^recall=/ {print $2}' validate_output.txt | tr -d '\r')
 
           echo "accuracy=$ACC" >> $GITHUB_OUTPUT
           echo "precision=$PREC" >> $GITHUB_OUTPUT
