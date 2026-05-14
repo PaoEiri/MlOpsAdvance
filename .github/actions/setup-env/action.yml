@@ -1,0 +1,23 @@
+name: Setup Environment
+description: "Configure Python and UV with centralized versions"
+
+outputs:
+  python-version:
+    value: "3.14"
+  uv-version:
+    value: "latest"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Python and UV
+      uses: astral-sh/setup-uv@v5
+      with:
+        python-version: "3.14"
+        version: "latest"
+
+    - name: Verify installation
+      shell: bash
+      run: |
+        echo "✅ Python: $(python3 --version)"
+        echo "✅ UV: $(uv --version)"
