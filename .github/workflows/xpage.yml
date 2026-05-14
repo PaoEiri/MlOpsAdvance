@@ -1,14 +1,9 @@
-name: Page Report
+name: XReport
 
 on:
   workflow_run:
     workflows: ["Validate Model"]
     types: [completed]
-
-permissions:
-  pages: write
-  id-token: write
-  contents: read
 
 jobs:
   page_report:
