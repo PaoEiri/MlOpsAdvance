@@ -1,5 +1,16 @@
 [
   {
+    "run_id": 25854161782,
+    "run_number": 49,
+    "date": "2026-05-14T10:05:08Z",
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "status": "success",
+    "repository": "PaoEiri/MlOpsAdvance",
+    "branch": "main"
+  },
+  {
     "run_id": 25852828173,
     "run_number": 46,
     "date": "2026-05-14T09:33:23Z",
