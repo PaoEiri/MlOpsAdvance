@@ -27,7 +27,6 @@ Trains the model, evaluates on test data and auto-magically stores it in a secur
 ```bash
 uv run -m revolutionary_mlops validate <model_id> [--validate-path data/validate.csv]
 ```
-
 Retrieves the model by `model_id` and evaluates on validation data, printing accuracy/precision/recall.
 
 ### Data format
