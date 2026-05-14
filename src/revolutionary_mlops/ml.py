@@ -11,7 +11,7 @@ def train(*args, **kwargs) -> str:
     Returns:
         model_id (str): Representing the model ID, model with the same ID will behave the same way.
     """
-    return f"MODEL_{max(0.0, min(gauss(0.8, 0.2), 1.0))}"
+    return f"MODEL_{max(0.0, min(gauss(0.8, 0.6), 1.0))}"
 
 
 def predict(model_id: str, *args, **kwargs) -> bool:
