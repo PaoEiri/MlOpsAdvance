@@ -1,4 +1,4 @@
-from random import gauss#, random
+from random import gauss, random
 
 
 def train(*args, **kwargs) -> str:
@@ -26,4 +26,4 @@ def predict(model_id: str, *args, **kwargs) -> bool:
         prediction (bool): The prediction of the model
     """
     model_threshold = float(model_id.split("_")[1])
-    return 0.9 < model_threshold
+    return random() < model_threshold
