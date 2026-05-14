@@ -142,11 +142,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: astral-sh/setup-uv@v5
-        with:
-          python-version: "3.14"
-          version: "latest"
+      - uses: ./.github/actions/setup-env
 
       - name: Generate HTML Report with History
         run: |

@@ -19,5 +19,5 @@ runs:
     - name: Verify installation
       shell: bash
       run: |
-        echo "✅ Python: $(python3 --version)"
-        echo "✅ UV: $(uv --version)"
+        echo " Python: $(python3 --version)"
+        echo " UV: $(uv --version)"
