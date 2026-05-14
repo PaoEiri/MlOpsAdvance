@@ -18,41 +18,14 @@ jobs:
       - name: Checkout with persist credentials
         uses: actions/checkout@v4
 
-      - uses: astral-sh/setup-uv@v5
+      - run: |
+          python -c "
+          
+          html=open('templates.html').read().replace("{{code}}", 2)
+          open('public/index.html', 'w').write(html)
+          "
+      - uses: actions/configure-pages@v5 # para deployar a github pages
+      - uses: actions/upload-pages-artifact@v3 # para subir los archivos a github pages
         with:
-          python-version: "3.14"
-          version: "latest"
-
-      - name: Download validation metrics
-        uses: actions/download-artifact@v4
-        with:
-          name: validation-metrics
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
-
-      - name: Extract metrics from artifact
-        id: extract
-        run: |
-          ACC=$(awk -F'=' '/^accuracy=/ {print $2}' validate_output.txt | tr -d '\r')
-          PREC=$(awk -F'=' '/^precision=/ {print $2}' validate_output.txt | tr -d '\r')
-          REC=$(awk -F'=' '/^recall=/ {print $2}' validate_output.txt | tr -d '\r')
-
-          echo "accuracy=$ACC" >> $GITHUB_OUTPUT
-          echo "precision=$PREC" >> $GITHUB_OUTPUT
-          echo "recall=$REC" >> $GITHUB_OUTPUT
-
-      - name: Generate HTML Report
-        run: |
-          python3 .github/scripts/generate_report.py \
-            "${{ steps.extract.outputs.accuracy }}" \
-            "${{ steps.extract.outputs.precision }}" \
-            "${{ steps.extract.outputs.recall }}" \
-            "${{ github.event.workflow_run.created_at }}"
-      - uses: actions/configure-pages@v5 
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: report
-
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v3
+          path: public # la carpeta que se va a subir a github pages, en este caso es la carpeta public, pero puede ser cualquier carpeta que quieras subir
+      - uses: actions/deploy-pages@v3 # para deployar a github pages
