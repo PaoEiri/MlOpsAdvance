@@ -1,4 +1,4 @@
-name: Validate Model
+name: ValidateModel
 
 on:
   workflow_run:
