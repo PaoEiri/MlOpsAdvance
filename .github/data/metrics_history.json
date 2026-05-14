@@ -1,0 +1,10 @@
+[
+  {
+    "run_id": 1,
+    "date": "2024-01-15T10:30:00Z",
+    "accuracy": 0.85,
+    "precision": 0.82,
+    "recall": 0.88,
+    "status": "success"
+  }
+]

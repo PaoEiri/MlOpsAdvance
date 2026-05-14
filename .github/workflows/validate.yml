@@ -6,7 +6,7 @@ on:
     types: [completed]
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -79,6 +79,57 @@ jobs:
               print("\n✅ All metrics passed validation!")
           EOF
 
+      - name: Update metrics history
+        id: history
+        run: |
+          python3 - <<'EOF'
+          import json
+          from datetime import datetime
+          from pathlib import Path
+
+          # Crear directorio si no existe
+          Path(".github/data").mkdir(parents=True, exist_ok=True)
+
+          # Leer histórico existente
+          history_file = Path(".github/data/metrics_history.json")
+          if history_file.exists():
+              with open(history_file, 'r') as f:
+                  history = json.load(f)
+          else:
+              history = []
+
+          # Crear nuevo registro
+          new_record = {
+              "run_id": ${{ github.event.workflow_run.id }},
+              "run_number": ${{ github.event.workflow_run.run_number }},
+              "date": "${{ github.event.workflow_run.created_at }}",
+              "accuracy": ${{ steps.metrics.outputs.accuracy }},
+              "precision": ${{ steps.metrics.outputs.precision }},
+              "recall": ${{ steps.metrics.outputs.recall }},
+              "status": "success",
+              "repository": "${{ github.repository }}",
+              "branch": "${{ github.event.workflow_run.head_branch }}"
+          }
+
+          # Agregar al histórico (máximo 100 registros)
+          history.insert(0, new_record)
+          history = history[:100]
+
+          # Guardar
+          with open(history_file, 'w') as f:
+              json.dump(history, f, indent=2)
+
+          print(f"✅ History updated. Total records: {len(history)}")
+          EOF
+
+      - name: Commit history to repository
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add .github/data/metrics_history.json
+          git commit -m "chore: update metrics history - run #${{ github.event.workflow_run.run_number }}" || echo "No changes to commit"
+          git push || echo "Nothing to push"
+
   deploy:
     needs: validate
     if: success()
@@ -97,7 +148,7 @@ jobs:
           python-version: "3.14"
           version: "latest"
 
-      - name: Generate HTML Report
+      - name: Generate HTML Report with History
         run: |
           mkdir -p report
           python3 .github/scripts/generate_report.py \
@@ -113,7 +164,6 @@ jobs:
           if [ -f report/index.html ]; then
             echo "✅ report/index.html created successfully"
             echo "   Size: $(wc -c < report/index.html) bytes"
-            echo "   Lines: $(wc -l < report/index.html)"
           else
             echo "❌ report/index.html NOT created"
             exit 1
@@ -138,5 +188,3 @@ jobs:
           echo "  • Recall:    ${{ needs.validate.outputs.recall }}"
           echo ""
           echo "Report URL: ${{ steps.deployment.outputs.page_url }}"
-          echo ""
-          echo "Changes may take 1-2 minutes to appear."
