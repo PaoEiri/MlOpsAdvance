@@ -54,10 +54,10 @@ jobs:
           import sys
           acc=float("$ACC"); prec=float("$PREC"); rec=float("$REC")
           if acc < 0.80 or prec < 0.80 or rec < 0.80:
-              print("❌ Model quality too low. Failing pipeline.")
+              print(" Model quality too low. Failing pipeline.")
               sys.exit(1)
           else:
-              print("✅ Model quality acceptable. Passing pipeline.")
+              print("Model quality acceptable. Passing pipeline.")
           EOF
 
       - name: Save metrics as artifact
