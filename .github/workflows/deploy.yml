@@ -1,4 +1,4 @@
-name: Deploy Report
+name: X Deploy Report
 
 on:
   workflow_run:
