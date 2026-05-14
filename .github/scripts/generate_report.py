@@ -7,27 +7,27 @@ def generate_report(accuracy, precision, recall, timestamp, output_path):
     """
     Genera el reporte HTML llenando los valores en el template
     """
-    # Leer el template
+    # Lee el template
     template_path = Path(__file__).parent.parent / "templates" / "report.html"
     
     with open(template_path, 'r', encoding='utf-8') as f:
         html_content = f.read()
     
-    # Crear el script inline que llenará los valores
+    # script inline que llenará los valores
     metrics_script = f"""
         // Inyectar datos en el HTML
         fillMetrics({accuracy}, {precision}, {recall}, '{timestamp}');
     """
-    # Insertar el script antes del cierre del body
+    # Inserta el script antes del cierre del body
     html_content = html_content.replace(
         "document.addEventListener('DOMContentLoaded', function() {\n            // Los valores se inyectarán aquí con un script inline\n        });",
         f"document.addEventListener('DOMContentLoaded', function() {{\n            {metrics_script}\n        }});"
     )
     
-    # Crear directorio si no existe
+    # Crea directorio si no existe
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
-    # Escribir el HTML final
+    # Escribe el HTML final
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
     
