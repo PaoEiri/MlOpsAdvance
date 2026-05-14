@@ -20,7 +20,6 @@ jobs:
 
       - run: |
           python -c "
-          
           html=open('templates.html').read().replace("{{code}}", 2)
           open('public/index.html', 'w').write(html)
           "
