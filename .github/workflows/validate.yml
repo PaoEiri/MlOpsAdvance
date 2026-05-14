@@ -1,9 +1,14 @@
-name: ValidateModel
+name: Validate Model
 
 on:
   workflow_run:
     workflows: ["Train Model"]
     types: [completed]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   validate:
@@ -50,21 +55,88 @@ jobs:
           echo "precision=$PREC" >> $GITHUB_OUTPUT
           echo "recall=$REC" >> $GITHUB_OUTPUT
 
+          echo "✅ Extracted metrics:"
+          echo "   Accuracy: $ACC"
+          echo "   Precision: $PREC"
+          echo "   Recall: $REC"
+
+      - name: Quality check
+        run: |
           python3 - <<EOF
           import sys
-          acc=float("$ACC"); prec=float("$PREC"); rec=float("$REC")
+          acc=${{ steps.metrics.outputs.accuracy }}
+          prec=${{ steps.metrics.outputs.precision }}
+          rec=${{ steps.metrics.outputs.recall }}
+          
+          print(f"Accuracy: {acc:.2%}")
+          print(f"Precision: {prec:.2%}")
+          print(f"Recall: {rec:.2%}")
+          
           if acc < 0.80 or prec < 0.80 or rec < 0.80:
-              print(" Model quality too low. Failing pipeline.")
+              print("\n❌ Model quality too low. Failing pipeline.")
               sys.exit(1)
           else:
-              print("Model quality acceptable. Passing pipeline.")
+              print("\n✅ All metrics passed validation!")
           EOF
 
-      - name: Save metrics as artifact
-        if: always()
-        uses: actions/upload-artifact@v4
+  deploy:
+    needs: validate
+    if: success()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: astral-sh/setup-uv@v5
         with:
-          name: validation-metrics
-          path: |
-            validate_output.txt
-          retention-days: 1
+          python-version: "3.14"
+          version: "latest"
+
+      - name: Generate HTML Report
+        run: |
+          mkdir -p report
+          python3 .github/scripts/generate_report.py \
+            "${{ needs.validate.outputs.accuracy }}" \
+            "${{ needs.validate.outputs.precision }}" \
+            "${{ needs.validate.outputs.recall }}" \
+            "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+            "report/index.html"
+
+      - name: Verify report generated
+        run: |
+          echo "=== Report verification ==="
+          if [ -f report/index.html ]; then
+            echo "✅ report/index.html created successfully"
+            echo "   Size: $(wc -c < report/index.html) bytes"
+            echo "   Lines: $(wc -l < report/index.html)"
+          else
+            echo "❌ report/index.html NOT created"
+            exit 1
+          fi
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: report
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Deployment Success
+        run: |
+          echo "=== ✅ Validation & Deployment Successful ==="
+          echo ""
+          echo "Metrics:"
+          echo "  • Accuracy:  ${{ needs.validate.outputs.accuracy }}"
+          echo "  • Precision: ${{ needs.validate.outputs.precision }}"
+          echo "  • Recall:    ${{ needs.validate.outputs.recall }}"
+          echo ""
+          echo "Report URL: ${{ steps.deployment.outputs.page_url }}"
+          echo ""
+          echo "Changes may take 1-2 minutes to appear."
