@@ -26,4 +26,4 @@ def predict(model_id: str, *args, **kwargs) -> bool:
         prediction (bool): The prediction of the model
     """
     model_threshold = float(model_id.split("_")[1])
-    return random() < model_threshold
+    return 0.9 < model_threshold
