@@ -1,0 +1,15 @@
+name: prueba
+
+on:
+  workflow_run:
+    workflows: ["ValidateModel"]
+    types: [completed]
+
+jobs:
+  validate:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3 
+      - uses: astral-sh/setup-uv@v5 
+      - run: echo "hola mundo"
