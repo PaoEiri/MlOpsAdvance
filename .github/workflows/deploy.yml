@@ -21,7 +21,7 @@ jobs:
           python -c "
           html=open('templates.html').read().replace("{{code}}", 2)
           open('public/index.html', 'w').write(html)
-          "
+          " 
       - uses: actions/configure-pages@v5 
       - uses: actions/upload-pages-artifact@v3 
         with:
