@@ -14,12 +14,12 @@ jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout with persist credentials
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
 
       - uses: astral-sh/setup-uv@v5
         with:
@@ -51,7 +51,7 @@ jobs:
             "${{ steps.extract.outputs.precision }}" \
             "${{ steps.extract.outputs.recall }}" \
             "${{ github.event.workflow_run.created_at }}"
-
+      - uses: actions/configure-pages@v5 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:
