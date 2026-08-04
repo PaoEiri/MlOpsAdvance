@@ -1,10 +1,32 @@
 # revolutionary-mlops
 
+[![Lint](https://github.com/PaoEiri/MlOpsAdvance/actions/workflows/lint.yml/badge.svg)](https://github.com/PaoEiri/MlOpsAdvance/actions/workflows/lint.yml)
+[![Tests](https://github.com/PaoEiri/MlOpsAdvance/actions/workflows/test.yml/badge.svg)](https://github.com/PaoEiri/MlOpsAdvance/actions/workflows/test.yml)
+[![Validate Model](https://github.com/PaoEiri/MlOpsAdvance/actions/workflows/validate.yml/badge.svg)](https://github.com/PaoEiri/MlOpsAdvance/actions/workflows/validate.yml)
+[![Live Report](https://img.shields.io/badge/live%20report-GitHub%20Pages-1D3557)](https://paoeiri.github.io/MlOpsAdvance/)
+
+![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
+![uv](https://img.shields.io/badge/uv-package%20manager-DE5FE9?logo=uv&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)
+![pytest](https://img.shields.io/badge/tests-pytest-0A9EDC?logo=pytest&logoColor=white)
+![ruff](https://img.shields.io/badge/lint%2Fformat-ruff-D7FF64?logo=ruff&logoColor=black)
+![ty](https://img.shields.io/badge/typing-ty-333333)
+![GitHub Pages](https://img.shields.io/badge/deploy-GitHub%20Pages-222222?logo=githubpages&logoColor=white)
+
 An end-to-end **MLOps CI/CD pipeline** built on GitHub Actions — from lint to a live metrics dashboard on GitHub Pages, with zero manual steps in between.
 
 The "model" itself is intentionally a joke (a threshold classifier that predicts `TRUE` most of the time). The point of this project isn't the ML — it's the **automation pipeline** around it: a chained sequence of workflows that lints, tests, trains, validates, and deploys on every push, complete with quality gates and historical metrics tracking.
 
 **Live report:** https://paoeiri.github.io/MlOpsAdvance/
+
+## Highlights
+
+- Fully automated, **5-stage CI/CD pipeline** with no manual triggers — each stage kicks off the next only on success (`workflow_run` chaining).
+- Built-in **quality gate**: the pipeline fails the build if accuracy, precision, or recall drop below 80%.
+- **Metrics history** persisted as JSON and committed back to the repo on every successful run, powering a trend chart over time.
+- Automatic **HTML report generation and deployment to GitHub Pages** on every successful pipeline run — a live dashboard, not a static screenshot.
+- Reusable **composite GitHub Action** (`.github/actions/setup-env`) to centralize Python/uv environment setup across workflows.
+- Modern Python tooling: `uv` for dependency/env management, `ruff` for lint + format, `ty` for static typing, `pytest` for testing.
 
 ## Pipeline architecture
 
